@@ -1,4 +1,4 @@
-service: Backend
+service: BFF
 provider:
   name: aws
   runtime: nodejs18.x

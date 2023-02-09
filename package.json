@@ -1,15 +1,15 @@
 {
-  "name": "backend",
+  "name": "bff",
   "version": "1.0.0",
-  "description": "This is the backend for the sudokuru service",
+  "description": "This is the bff for the sudokuru service",
   "main": "index.js",
   "scripts": {
     "test:unit": "jest --testPathPattern=src/tests/unit",
-    "test:integration": "newman run \"postman/collections/Sudokuru-Backend.json\"",
-    "test:integration500s": "newman run \"postman/collections/Sudokuru-Backend-500s\"",
+    "test:integration": "newman run \"postman/collections/Sudokuru-BFF.json\"",
+    "test:integration500s": "newman run \"postman/collections/Sudokuru-BFF-500s\"",
     "update-docs": "typedoc --entryPoints src --entryPointStrategy expand --out docs --plugin typedoc-theme-hierarchy --theme hierarchy",
     "docker": "docker-compose up -d",
-    "app": "docker-compose -f docker-compose-app.yml up -d",
+    "app": "docker-compose -f docker-compose.yml up -d",
     "start": "ts-node src/app.ts local",
     "deploy": "tsc && serverless deploy -c serverless.yml"
   },
@@ -28,7 +28,6 @@
     "@types/mongoose": "^5.11.97",
     "express": "^4.18.2",
     "express-validator": "^6.14.2",
-    "mongoose": "^6.8.1",
     "serverless-http": "^3.1.0"
   },
   "devDependencies": {
