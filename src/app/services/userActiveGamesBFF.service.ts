@@ -40,6 +40,8 @@ async function createGameService(puzzles) {
     // get puzzle from puzzle database
     res = sendRequest("url", "token", "GET", "");
 
+    //todo verify game has not been played before by player
+
     // if the get fails, throw error
     if (res.status !== 200){
         throw new CustomError(CustomErrorEnum.STARTGAME_GETPUZZLE_FAILED, res.status);
@@ -53,6 +55,7 @@ async function createGameService(puzzles) {
         throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, res.status);
     }
 
+    // return new UserActiveGame object.
     return res;
 }
 
