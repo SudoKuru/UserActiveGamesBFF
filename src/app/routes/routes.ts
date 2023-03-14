@@ -20,10 +20,13 @@ const checkJwt = auth({
 
 const puzzleController = require('../controllers/puzzle.controller');
 
-routes.get("/newGame/", checkJwt, puzzleController.search);
+routes.get("/newGame/", checkJwt, puzzleController.search); //later change this to POST activeGames
 routes.get("/activeGames/", checkJwt, puzzleController.search);
 routes.patch("/activeGames/", checkJwt, puzzleController.update);
 routes.delete("/activeGames/", checkJwt, puzzleController.remove);
+
+// later incorperate getDrill as part of activeGames POST, GET, PATCH, DELETE as a different 'gamemode'
+routes.get("/drillGame/", checkJwt, puzzleController.search);
 
 export = routes;
 
