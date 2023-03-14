@@ -43,7 +43,7 @@ async function createPuzzle(req, res, next) {
  */
 async function createGame(req, res, next) {
     try {
-        res.json(await puzzleService.createGame(req.params));
+        res.json(await puzzleService.createGameService(req.params));
     } catch(err) {
         next(err);
     }
@@ -86,4 +86,4 @@ async function removePuzzle(req, res, next) {
     }
 }
 
-export = {create: createPuzzle, createGame: createGame, updateGame: updatePuzzle, endGame: removePuzzle }
+export = {create: createPuzzle, createGame, updateGame: updatePuzzle, endGame: removePuzzle }
