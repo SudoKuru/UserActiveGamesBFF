@@ -8,6 +8,10 @@
  * @module
  */
 
+import {sendRequest} from "../requests/userActiveGamesBFF.requests";
+import {Response} from "express";
+import {CustomError, CustomErrorEnum} from "../models/error.model";
+
 /**
  * This function takes the JSON puzzles and sends them to the upload function
  * There is no need for any additional logic here
@@ -24,13 +28,32 @@ async function puzzleCreateService(puzzles) {
  * @param puzzles this is a JSON object that stores the input query
  */
 async function createGameService(puzzles) {
+
     // delete all existing user active games
+    let res:Response = sendRequest("url", "token", "DELETE", "");
+
+    // if the delete fails, throw error
+    if (res.status !== 200){
+        throw new CustomError(CustomErrorEnum.STARTGAME_DELETEOLDACTIVEGAMES_FAILED, res.status);
+    }
 
     // get puzzle from puzzle database
+    res = sendRequest("url", "token", "GET", "");
+
+    // if the get fails, throw error
+    if (res.status !== 200){
+        throw new CustomError(CustomErrorEnum.STARTGAME_GETPUZZLE_FAILED, res.status);
+    }
 
     // create active game with puzzle info
+    res = sendRequest("url", "token", "POST", "");
 
-    // return active game
+    // if the post fails, throw error
+    if (res.status !== 201){
+        throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, res.status);
+    }
+
+    return res;
 }
 
 /**
