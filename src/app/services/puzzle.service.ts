@@ -97,5 +97,5 @@ function filterInputQuery(puzzles){
     return filterValues;
 }
 
-export = { createPuzzle: puzzleCreateService, searchPuzzle: puzzleSearchService, updatePuzzle: puzzleUpdateService, removePuzzle: puzzleRemoveService };
+export = { createPuzzle: puzzleCreateService, createGame: puzzleSearchService, updatePuzzle: puzzleUpdateService, removePuzzle: puzzleRemoveService };
 

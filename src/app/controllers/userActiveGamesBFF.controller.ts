@@ -1,7 +1,7 @@
 /**
  * This is the controller file for the puzzle endpoint
  * This file is called by the router file and calls the service file
- * There are four main functions {@link createPuzzle}, {@link searchPuzzle},
+ * There are four main functions {@link createPuzzle}, {@link createGame},
  * {@link updatePuzzle}, and {@link removePuzzle}
  * The main purpose of the controller is to make sure that only validated and sanitized data
  * moves on to the service function
@@ -34,18 +34,16 @@ async function createPuzzle(req, res, next) {
 }
 
 /**
- * Returns 200 if puzzleService is successful
+ * Returns 200 if createGameService is successful
  * Otherwise catches error and sends to our errorHandler
- * Takes sanitized input and sends it to puzzleService
+ * Takes parameters and sends it to createGameService
  * @param req This is the request object
  * @param res This is the response object
  * @param next This takes us to the errorHandler if request fails
  */
-async function searchPuzzle(req, res, next) {
-
-    const allData = matchedData(req, { locations: ['query'] });
+async function createGame(req, res, next) {
     try {
-        res.json(await puzzleService.searchPuzzle(allData));
+        res.json(await puzzleService.createGame(req.params));
     } catch(err) {
         next(err);
     }
@@ -88,4 +86,4 @@ async function removePuzzle(req, res, next) {
     }
 }
 
-export = {create: createPuzzle, search: searchPuzzle, update: updatePuzzle, remove: removePuzzle }
+export = {create: createPuzzle, createGame: createGame, updateGame: updatePuzzle, endGame: removePuzzle }

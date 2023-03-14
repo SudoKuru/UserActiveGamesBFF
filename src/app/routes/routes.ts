@@ -18,15 +18,15 @@ const checkJwt = auth({
     issuerBaseURL: `https://` + process.env.AUTH0_BASE_URL + '/',
 });
 
-const puzzleController = require('../controllers/puzzle.controller');
+const puzzleController = require('../controllers/userActiveGamesBFF.controller');
 
-routes.get("/newGame/", checkJwt, puzzleController.search); //later change this to POST activeGames
-routes.get("/activeGames/", checkJwt, puzzleController.search);
-routes.patch("/activeGames/", checkJwt, puzzleController.update);
-routes.delete("/activeGames/", checkJwt, puzzleController.remove);
+routes.get("/newGame/", checkJwt, puzzleController.createGame); //later change this to POST activeGames
+routes.get("/activeGames/", checkJwt, puzzleController.resumeGame);
+routes.patch("/activeGames/", checkJwt, puzzleController.updateGame);
+routes.delete("/activeGames/", checkJwt, puzzleController.endGame);
 
 // later incorporate getDrill as part of activeGames POST, GET, PATCH, DELETE as a different 'gamemode'
-routes.get("/drillGame/", checkJwt, puzzleController.search);
+routes.get("/drillGame/", checkJwt, puzzleController.createDrillGame);
 
 export = routes;
 
