@@ -18,7 +18,7 @@ export enum CustomErrorEnum {
     STARTGAME_INVALIDDIFFICULTY = "Invalid difficulty provided",
     STARTGAME_DELETEOLDACTIVEGAMES_FAILED = "The deletion of old active games failed",
     STARTGAME_GETPUZZLE_FAILED = "The retrevial of a new puzzle failed",
-    STARTGAME_CREATEACTIVEGAME_FAILED = "The retrevial of a new puzzle failed",
+    STARTGAME_CREATEACTIVEGAME_FAILED = "The creation of a new active game failed",
     INVALID_SYNTAX = "The request has invalid syntax",
     PUZZLE_NOT_FOUND = "Puzzle matching search criteria was not found",
     DEFAULT_400_ERROR = "Invalid Request",

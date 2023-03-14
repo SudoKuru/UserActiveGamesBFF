@@ -8,51 +8,94 @@
  * @module
  */
 
-import {sendRequest} from "../requests/userActiveGamesBFF.requests";
-import {Response} from "express";
 import {CustomError, CustomErrorEnum} from "../models/error.model";
 
 require('dotenv').config();
+const axios = require('axios').default;
 const basePuzzleUrl = process.env.PUZZLE_URL;
 const baseUserActiveGamesUrl = process.env.USER_ACTIVE_GAMES_URL;
+
 
 /**
  * This function takes in the input query and throws and error if no puzzles
  * are found to match the query
  * This function calls a helper function to create the inputQuery for the dataBase function
  * @param difficulty is an integer storing requested difficulty
- * @param userId is a string storing userId of the requester
+ * @param req
  */
-async function createGameService(difficulty:number, token:any) {
+async function createGameService(difficulty:number, req:any) {
+
+    let token = req.auth.payload;
+    let puzzleGetResponse = null;
+    let responseBody = null;
 
     // delete all existing user active games
-    let res:Response = sendRequest(baseUserActiveGamesUrl, token.toString(),  "DELETE", "");
-
-    // if the delete fails, throw error
-    if (res.status !== 200){
-        throw new CustomError(CustomErrorEnum.STARTGAME_DELETEOLDACTIVEGAMES_FAILED, res.status);
-    }
+    await axios.delete(baseUserActiveGamesUrl + "?userID=" + token.sub.toString(), {
+        headers: {
+            Authorization: req.headers.authorization
+        }
+    }).then(function (response) {
+        if (response.status !== 200){
+            throw new CustomError(CustomErrorEnum.STARTGAME_DELETEOLDACTIVEGAMES_FAILED, response.status);
+        }
+    })
+    .catch(function (error) {
+        let responseCode = 500
+        if (error.response){
+            responseCode = error.response.status;
+        }
+        throw new CustomError(CustomErrorEnum.STARTGAME_DELETEOLDACTIVEGAMES_FAILED, responseCode);
+    });
 
     // get puzzle from puzzle database
-    res = sendRequest(basePuzzleUrl + "", token.toString(), "GET", "");
+    await axios.get(basePuzzleUrl + "?difficulty=" + difficulty + "&count=1", {
+        headers: {
+            Authorization: req.headers.authorization
+        }
+    }).then(function (response) {
+        if (response.status !== 200){
+            throw new CustomError(CustomErrorEnum.STARTGAME_GETPUZZLE_FAILED, response.status);
+        }
+        puzzleGetResponse = response.data;
+    })
+        .catch(function (error) {
+            let responseCode = 500
+            if (error.response){
+                responseCode = error.response.status;
+            }
+            throw new CustomError(CustomErrorEnum.STARTGAME_GETPUZZLE_FAILED, responseCode);
+        });
 
     //todo verify game has not been played before by player
 
-    // if the get fails, throw error
-    if (res.status !== 200){
-        throw new CustomError(CustomErrorEnum.STARTGAME_GETPUZZLE_FAILED, res.status);
-    }
-
     // create active game with puzzle info
-    res = sendRequest(baseUserActiveGamesUrl, token.toString(), "POST", "");
 
-    // if the post fails, throw error
-    if (res.status !== 201){
-        throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, res.status);
-    }
+    const bodyData = [{
+        "userID": token.sub.toString(),
+        "puzzle": puzzleGetResponse[0].puzzle
+    }];
 
-    // return new UserActiveGame object.
-    return res;
+    await axios.post(baseUserActiveGamesUrl, bodyData, {
+        headers: {
+            Authorization: req.headers.authorization
+        }
+    }).then(function (response) {
+        if (response.status !== 201){
+            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
+        }
+        responseBody = response.data;
+    })
+        .catch(function (error) {
+            let responseCode = 500
+            if (error.response){
+                responseCode = error.response.status;
+            }
+            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
+        });
+
+    return responseBody;
+
+    //return new UserActiveGame object.
 }
 
 /**
@@ -83,5 +126,5 @@ async function puzzleUpdateService(bodyData, queryData) {
 async function puzzleRemoveService(puzzles) {
 }
 
-export = { createPuzzle: puzzleCreateService, createGameService, updatePuzzle: puzzleUpdateService, removePuzzle: puzzleRemoveService };
+export = { createPuzzle: puzzleCreateService, createGameService: createGameService, updatePuzzle: puzzleUpdateService, removePuzzle: puzzleRemoveService };
 

@@ -24,13 +24,13 @@ const puzzleService = require('../services/userActiveGamesBFF.service');
  */
 async function createGame(req, res, next) {
 
-    // if difficulty is not provided in parameters we throw error
-    if (!('difficulty' in req.params)){
-        throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDDIFFICULTY, 400);
-    }
-
     try {
-        res.json(await puzzleService.createGameService(req.params['difficulty'], req.auth.payload));
+        // if difficulty is not provided in parameters we throw error
+        if (!('difficulty' in req.query)){
+            throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDDIFFICULTY, 400);
+        }
+
+        res.json(await puzzleService.createGameService(req.query['difficulty'], req));
     } catch(err) {
         next(err);
     }
@@ -95,4 +95,4 @@ async function removePuzzle(req, res, next) {
     }
 }
 
-export = {create: createPuzzle, createGame, updateGame: updatePuzzle, endGame: removePuzzle }
+export = {create: createPuzzle, createGame: createGame, updateGame: updatePuzzle, endGame: removePuzzle }
