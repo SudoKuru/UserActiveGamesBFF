@@ -12,25 +12,21 @@ import {sendRequest} from "../requests/userActiveGamesBFF.requests";
 import {Response} from "express";
 import {CustomError, CustomErrorEnum} from "../models/error.model";
 
-/**
- * This function takes the JSON puzzles and sends them to the upload function
- * There is no need for any additional logic here
- * @param puzzles This is an array of JSON puzzles
- */
-async function puzzleCreateService(puzzles) {
-
-}
+require('dotenv').config();
+const basePuzzleUrl = process.env.PUZZLE_URL;
+const baseUserActiveGamesUrl = process.env.USER_ACTIVE_GAMES_URL;
 
 /**
  * This function takes in the input query and throws and error if no puzzles
  * are found to match the query
  * This function calls a helper function to create the inputQuery for the dataBase function
- * @param puzzles this is a JSON object that stores the input query
+ * @param difficulty is an integer storing requested difficulty
+ * @param userId is a string storing userId of the requester
  */
-async function createGameService(puzzles) {
+async function createGameService(difficulty:number, token:any) {
 
     // delete all existing user active games
-    let res:Response = sendRequest("url", "token", "DELETE", "");
+    let res:Response = sendRequest(baseUserActiveGamesUrl, token.toString(),  "DELETE", "");
 
     // if the delete fails, throw error
     if (res.status !== 200){
@@ -38,7 +34,7 @@ async function createGameService(puzzles) {
     }
 
     // get puzzle from puzzle database
-    res = sendRequest("url", "token", "GET", "");
+    res = sendRequest(basePuzzleUrl + "", token.toString(), "GET", "");
 
     //todo verify game has not been played before by player
 
@@ -48,7 +44,7 @@ async function createGameService(puzzles) {
     }
 
     // create active game with puzzle info
-    res = sendRequest("url", "token", "POST", "");
+    res = sendRequest(baseUserActiveGamesUrl, token.toString(), "POST", "");
 
     // if the post fails, throw error
     if (res.status !== 201){
@@ -57,6 +53,15 @@ async function createGameService(puzzles) {
 
     // return new UserActiveGame object.
     return res;
+}
+
+/**
+ * This function takes the JSON puzzles and sends them to the upload function
+ * There is no need for any additional logic here
+ * @param puzzles This is an array of JSON puzzles
+ */
+async function puzzleCreateService(puzzles) {
+
 }
 
 /**

@@ -9,7 +9,32 @@
  */
 
 import {matchedData} from "express-validator";
+import {CustomError, CustomErrorEnum} from "../models/error.model";
+
 const puzzleService = require('../services/userActiveGamesBFF.service');
+
+
+/**
+ * Returns 200 if createGameService is successful
+ * Otherwise catches error and sends to our errorHandler
+ * Takes parameters and sends it to createGameService
+ * @param req This is the request object
+ * @param res This is the response object
+ * @param next This takes us to the errorHandler if request fails
+ */
+async function createGame(req, res, next) {
+
+    // if difficulty is not provided in parameters we throw error
+    if (!('difficulty' in req.params)){
+        throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDDIFFICULTY, 400);
+    }
+
+    try {
+        res.json(await puzzleService.createGameService(req.params['difficulty'], req.auth.payload));
+    } catch(err) {
+        next(err);
+    }
+}
 
 /**
  * Returns 201 if puzzleService is successful
@@ -28,22 +53,6 @@ async function createPuzzle(req, res, next) {
     try {
         // override successful completion code of 200 to 201 for successful object creation
         res.status(201).json(await puzzleService.createPuzzle(allData));
-    } catch(err) {
-        next(err);
-    }
-}
-
-/**
- * Returns 200 if createGameService is successful
- * Otherwise catches error and sends to our errorHandler
- * Takes parameters and sends it to createGameService
- * @param req This is the request object
- * @param res This is the response object
- * @param next This takes us to the errorHandler if request fails
- */
-async function createGame(req, res, next) {
-    try {
-        res.json(await puzzleService.createGameService(req.params));
     } catch(err) {
         next(err);
     }
