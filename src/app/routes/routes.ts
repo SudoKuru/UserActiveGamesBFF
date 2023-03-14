@@ -20,14 +20,10 @@ const checkJwt = auth({
 
 const puzzleController = require('../controllers/puzzle.controller');
 
-const postCheckScopes = requiredScopes('create:sudoku_puzzle');
-const patchCheckScopes = requiredScopes('update:sudoku_puzzle');
-const deleteCheckScopes = requiredScopes('delete:sudoku_puzzle');
-
-routes.post("/puzzles/", checkJwt, postCheckScopes, puzzleController.create);
-routes.get("/puzzles/", checkJwt, puzzleController.search);
-routes.patch("/puzzles/", checkJwt, patchCheckScopes, puzzleController.update);
-routes.delete("/puzzles/", checkJwt, deleteCheckScopes, puzzleController.remove);
+routes.get("/newGame/", checkJwt, puzzleController.search);
+routes.get("/activeGames/", checkJwt, puzzleController.search);
+routes.patch("/activeGames/", checkJwt, puzzleController.update);
+routes.delete("/activeGames/", checkJwt, puzzleController.remove);
 
 export = routes;
 
