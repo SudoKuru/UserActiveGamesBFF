@@ -14,6 +14,7 @@
  * @param puzzles This is an array of JSON puzzles
  */
 async function puzzleCreateService(puzzles) {
+
 }
 
 /**
@@ -23,6 +24,13 @@ async function puzzleCreateService(puzzles) {
  * @param puzzles this is a JSON object that stores the input query
  */
 async function createGameService(puzzles) {
+    // delete all existing user active games
+
+    // get puzzle from puzzle database
+
+    // create active game with puzzle info
+
+    // return active game
 }
 
 /**

@@ -9,7 +9,7 @@
  */
 
 import {matchedData} from "express-validator";
-const puzzleService = require('../services/puzzle.service');
+const puzzleService = require('../services/userActiveGamesBFF.service');
 
 /**
  * Returns 201 if puzzleService is successful
