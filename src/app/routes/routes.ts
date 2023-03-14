@@ -25,7 +25,7 @@ routes.get("/activeGames/", checkJwt, puzzleController.search);
 routes.patch("/activeGames/", checkJwt, puzzleController.update);
 routes.delete("/activeGames/", checkJwt, puzzleController.remove);
 
-// later incorperate getDrill as part of activeGames POST, GET, PATCH, DELETE as a different 'gamemode'
+// later incorporate getDrill as part of activeGames POST, GET, PATCH, DELETE as a different 'gamemode'
 routes.get("/drillGame/", checkJwt, puzzleController.search);
 
 export = routes;
