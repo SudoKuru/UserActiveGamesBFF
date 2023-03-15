@@ -1,8 +1,8 @@
 version: '3.8'
 
 services:
-  app:
-    container_name: express-app
+  user_active_games_bff_app:
+    container_name: user_active_games_bff_app
     build: .
     restart: unless-stopped
     command: npm run start
@@ -11,8 +11,8 @@ services:
     links:
       - puzzle-app
       - useractivegames-app
-  puzzle-app:
-    container_name: puzzle-app
+  puzzle_app:
+    container_name: puzzle_app
     image: ghcr.io/sudokuru/puzzle:latest
     restart: unless-stopped
     command: npm run start
@@ -20,8 +20,8 @@ services:
       - "3000:3000"
     links:
       - mongo
-  useractivegames-app:
-    container_name: useractivegames-app
+  user_active_games_app:
+    container_name: user_active_games_app
     image: ghcr.io/sudokuru/useractivegames:latest
     restart: unless-stopped
     command: npm run start
