@@ -23,8 +23,12 @@
 
 1. Install Docker on your machine. Tutorial is linked below:<br>
    [![Docker Tutorial](https://img.youtube.com/vi/2ezNqqaSjq8/0.jpg)](https://www.youtube.com/watch?v=2ezNqqaSjq8)<br>
-2. Once docker is installed, the Mongo image can be run with this command:<br>
-running the command<br>
+2. Login to docker with the command ```docker login --username <GitHub_Username>```<br>
+   You will be asked for your password, which is your GitHub Token. Make sure your GitHub Token has permissions to access GitHub's Container Registry!<br>
+   The needed scope is ```read:packages```<br>
+   This command should be run in the terminal in the root folder of this project.<br>
+3. The Mongo image can be run with this command in the root folder:<br>
+   Note use ```sudo``` on Linux/Mac<br>
 ```console
 npm run docker
 ```
