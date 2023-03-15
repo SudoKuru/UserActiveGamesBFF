@@ -9,6 +9,25 @@ services:
     ports:
       - "2901:2901"
     links:
+      - puzzle-app
+      - useractivegames-app
+  puzzle-app:
+    container_name: puzzle-app
+    image: ghcr.io/sudokuru/puzzle:latest
+    restart: unless-stopped
+    command: npm run start
+    ports:
+      - "3000:3000"
+    links:
+      - mongo
+  useractivegames-app:
+    container_name: useractivegames-app
+    image: ghcr.io/sudokuru/useractivegames:latest
+    restart: unless-stopped
+    command: npm run start
+    ports:
+      - "3001:3001"
+    links:
       - mongo
   mongo:
     container_name: mongo

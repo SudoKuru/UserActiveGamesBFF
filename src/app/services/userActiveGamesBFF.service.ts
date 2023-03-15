@@ -12,8 +12,8 @@ import {CustomError, CustomErrorEnum} from "../models/error.model";
 
 require('dotenv').config();
 const axios = require('axios').default;
-const basePuzzleUrl = process.env.PUZZLE_URL;
-const baseUserActiveGamesUrl = process.env.USER_ACTIVE_GAMES_URL;
+const basePuzzleUrl = process.env.PUZZLE_URL + '/api/v1/puzzles';
+const baseUserActiveGamesUrl = process.env.USER_ACTIVE_GAMES_URL + '/api/v1/user/activeGames';
 
 
 /**
