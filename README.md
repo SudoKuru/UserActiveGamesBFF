@@ -37,3 +37,32 @@ npm run start
 npm run test:integration
 ```
 
+# Endpoint Documentation
+
+### GET newGame endpoint:<br>
+Creates a newGame for the user.<br>
+Example:<br>
+method: GET<br>
+url: ```http://localhost:2901/api/v1/newGame?difficulty=1``` <br>
+Header: ```Authorization: "Bearer " + accessToken``` <br>
+
+Returns: <br>
+```json
+[
+    {
+        "userID": "auth0|639440c8f2906775079c7254",
+        "puzzle": "310084002200150006570003010423708095760030000009562030050006070007000900000001500",
+        "currentTime": 0,
+        "numHintsAskedFor": 0,
+        "numWrongCellsPlayed": 0,
+        "_id": "641109a19a155b57126fe647",
+        "moves": [],
+        "__v": 0
+    }
+]
+```
+puzzle can be accessed by the following:<br>
+```response[0].puzzle``` <br>
+
+
+
