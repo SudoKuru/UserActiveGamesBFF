@@ -72,7 +72,8 @@ async function createGameService(difficulty:number, req:any) {
 
     const bodyData = [{
         "userID": token.sub.toString(),
-        "puzzle": puzzleGetResponse[0].puzzle
+        "puzzle": puzzleGetResponse[0].puzzle,
+        "puzzleSolution": puzzleGetResponse[0].puzzleSolution
     }];
 
     await axios.post(baseUserActiveGamesUrl, bodyData, {
