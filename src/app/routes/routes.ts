@@ -21,7 +21,7 @@ const checkJwt = auth({
 const puzzleController = require('../controllers/userActiveGamesBFF.controller');
 
 routes.get("/newGame/", checkJwt, puzzleController.createGame); //later change this to POST activeGames
-//routes.get("/activeGames/", checkJwt, puzzleController.resumeGame);
+routes.get("/activeGames/", checkJwt, puzzleController.getGame);
 routes.patch("/activeGames/", checkJwt, puzzleController.updateGame);
 routes.delete("/activeGames/", checkJwt, puzzleController.endGame);
 

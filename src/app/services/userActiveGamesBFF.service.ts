@@ -1,8 +1,8 @@
 /**
  * This is the puzzle service file
  * This file takes input from the controller and directs it to the db.service file
- * The five functions are {@link puzzleCreateService}, {@link createGameService},
- * {@link puzzleUpdateService}, {@link puzzleRemoveService}, and {@link filterInputQuery}
+ * The five functions are {@link getGameService}, {@link createGameService},
+ * {@link puzzleUpdateService}, {@link endGameService}, and {@link filterInputQuery}
  * The main purpose of this service file is to perform the 'business' logic
  * Any errors will be caught by our try/catch block in our controller
  * @module
@@ -100,12 +100,38 @@ async function createGameService(difficulty:number, req:any) {
 }
 
 /**
- * This function takes the JSON puzzles and sends them to the upload function
- * There is no need for any additional logic here
- * @param puzzles This is an array of JSON puzzles
+ *
+ *
+ * @param req
  */
-async function puzzleCreateService(puzzles) {
+async function getGameService(req) {
 
+    let token = req.auth.payload;
+    let responseBody = null;
+
+    // get active game with puzzle info
+
+    await axios.get(baseUserActiveGamesUrl + "?userID=" + token.sub.toString(), {
+        headers: {
+            Authorization: req.headers.authorization
+        }
+    }).then(function (response) {
+        if (response.status !== 200){
+            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
+        }
+        responseBody = response.data;
+    })
+        .catch(function (error) {
+            let responseCode = 500
+            if (error.response){
+                responseCode = error.response.status;
+            }
+            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
+        });
+
+    return responseBody;
+
+    //return UserActiveGame object.
 }
 
 /**
@@ -119,13 +145,38 @@ async function puzzleUpdateService(bodyData, queryData) {
 }
 
 /**
- * This function takes in the input query and deletes any puzzles that match the query
+ * This function takes in the input query and deletes any UserActiveGames that match the query
  * We do not throw an error here to stay aligned with standard practice.
  * A delete request is successful even if the object did not exist.
- * @param puzzles this stores a JSON object that stores the query
+ * @param puzzle
+ * @param req
  */
-async function puzzleRemoveService(puzzles) {
+async function endGameService(puzzle, req) {
+
+    let token = req.auth.payload;
+    let responseBody = null;
+
+    // delete all existing user active games
+    await axios.delete(baseUserActiveGamesUrl + "?userID=" + token.sub.toString() + "&puzzle=" + puzzle, {
+        headers: {
+            Authorization: req.headers.authorization
+        }
+    }).then(function (response) {
+        if (response.status !== 200){
+            throw new CustomError(CustomErrorEnum.STARTGAME_DELETEOLDACTIVEGAMES_FAILED, response.status);
+        }
+        responseBody = response.data;
+    })
+        .catch(function (error) {
+            let responseCode = 500
+            if (error.response){
+                responseCode = error.response.status;
+            }
+            throw new CustomError(CustomErrorEnum.STARTGAME_DELETEOLDACTIVEGAMES_FAILED, responseCode);
+        });
+
+    return responseBody;
 }
 
-export = { createPuzzle: puzzleCreateService, createGameService: createGameService, updatePuzzle: puzzleUpdateService, removePuzzle: puzzleRemoveService };
+export = { getGame: getGameService, createGameService: createGameService, updateGame: puzzleUpdateService, endGame: endGameService };
 
