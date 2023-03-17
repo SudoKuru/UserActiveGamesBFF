@@ -138,10 +138,33 @@ async function getGameService(req) {
  * This function takes in bodyData and queryData and updates all puzzles
  * that match the queryData with the bodyData
  * This function calls a helper function to create the inputQuery for the database function
- * @param bodyData this stores a JSON object with values to be updated
- * @param queryData this stores a JSON object with values used to retrieve puzzles to be updated
+ * @param puzzle
+ * @param req
  */
-async function puzzleUpdateService(bodyData, queryData) {
+async function puzzleUpdateService(puzzle, req) {
+
+    let token = req.auth.payload;
+    let responseBody = null;
+
+    await axios.patch(baseUserActiveGamesUrl + "?userID=" + token.sub.toString() + "&puzzle=" + puzzle, req.body, {
+        headers: {
+            Authorization: req.headers.authorization
+        }
+    }).then(function (response) {
+        if (response.status !== 200){
+            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
+        }
+        responseBody = response.data;
+    })
+        .catch(function (error) {
+            let responseCode = 500
+            if (error.response){
+                responseCode = error.response.status;
+            }
+            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
+        });
+
+    return responseBody;
 }
 
 /**
@@ -178,5 +201,39 @@ async function endGameService(puzzle, req) {
     return responseBody;
 }
 
-export = { getGame: getGameService, createGameService: createGameService, updateGame: puzzleUpdateService, endGame: endGameService };
+/**
+ *
+ *
+ * @param req
+ */
+async function getDrillService(drillStrategy, req) {
+
+    let responseBody = null;
+
+    // get drill game
+
+    await axios.get(basePuzzleUrl + "?drillStrategies[]=" + drillStrategy + "&count=1", {
+        headers: {
+            Authorization: req.headers.authorization
+        }
+    }).then(function (response) {
+        if (response.status !== 200){
+            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
+        }
+        responseBody = response.data;
+    })
+        .catch(function (error) {
+            let responseCode = 500
+            if (error.response){
+                responseCode = error.response.status;
+            }
+            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
+        });
+
+    return responseBody;
+
+    //return Puzzle object.
+}
+
+export = { getGame: getGameService, createGameService: createGameService, updateGame: puzzleUpdateService, endGame: endGameService, getDrill: getDrillService };
 

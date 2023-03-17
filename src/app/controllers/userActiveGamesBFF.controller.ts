@@ -64,7 +64,11 @@ async function getGame(req, res, next) {
 async function updateGame(req, res, next) {
 
     try {
-        res.json(await puzzleService.updateGame(req));
+        if (!('puzzle' in req.query)){
+            throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDDIFFICULTY, 400);
+        }
+
+        res.json(await puzzleService.updateGame(req.query['puzzle'], req));
     } catch(err) {
         next(err);
     }
@@ -80,15 +84,37 @@ async function updateGame(req, res, next) {
  */
 async function endGame(req, res, next) {
 
-    if (!('puzzle' in req.query)){
-        throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDDIFFICULTY, 400);
-    }
-
     try {
+        if (!('puzzle' in req.query)){
+            throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDDIFFICULTY, 400);
+        }
+
         res.json(await puzzleService.endGame(req.query['puzzle'], req));
     } catch(err) {
         next(err);
     }
 }
 
-export = {getGame: getGame, createGame: createGame, updateGame: updateGame, endGame: endGame }
+/**
+ * Returns 200 if getDrillService is successful
+ * Otherwise catches error and sends to our errorHandler
+ * Takes sanitized input and sends it to getGameService
+ * @param req This is the request object
+ * @param res This is the response object
+ * @param next This takes us to the errorHandler if request fails
+ */
+async function getDrill(req, res, next) {
+
+    try {
+        console.log(req.query);
+        if (!('drillStrategies' in req.query)){
+            throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDDIFFICULTY, 400);
+        }
+
+        res.json(await puzzleService.getDrill(req.query['drillStrategies'], req));
+    } catch(err) {
+        next(err);
+    }
+}
+
+export = {getGame: getGame, createGame: createGame, updateGame: updateGame, endGame: endGame, getDrill: getDrill }
