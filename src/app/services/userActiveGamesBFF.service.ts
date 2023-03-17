@@ -2,7 +2,7 @@
  * This is the puzzle service file
  * This file takes input from the controller and directs it to the db.service file
  * The five functions are {@link getGameService}, {@link createGameService},
- * {@link puzzleUpdateService}, {@link endGameService}, and {@link filterInputQuery}
+ * {@link saveGameService}, {@link endGameService}, and {@link filterInputQuery}
  * The main purpose of this service file is to perform the 'business' logic
  * Any errors will be caught by our try/catch block in our controller
  * @module
@@ -117,7 +117,7 @@ async function getGameService(req) {
         }
     }).then(function (response) {
         if (response.status !== 200){
-            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
+            throw new CustomError(CustomErrorEnum.GETGAME_GETACTIVEGAME_FAILED, response.status);
         }
         responseBody = response.data;
     })
@@ -126,7 +126,7 @@ async function getGameService(req) {
             if (error.response){
                 responseCode = error.response.status;
             }
-            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
+            throw new CustomError(CustomErrorEnum.GETGAME_GETACTIVEGAME_FAILED, responseCode);
         });
 
     return responseBody;
@@ -141,7 +141,7 @@ async function getGameService(req) {
  * @param puzzle
  * @param req
  */
-async function puzzleUpdateService(puzzle, req) {
+async function saveGameService(puzzle, req) {
 
     let token = req.auth.payload;
     let responseBody = null;
@@ -152,7 +152,7 @@ async function puzzleUpdateService(puzzle, req) {
         }
     }).then(function (response) {
         if (response.status !== 200){
-            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
+            throw new CustomError(CustomErrorEnum.SAVEGAME_PATCHACTIVEGAME_FAILED, response.status);
         }
         responseBody = response.data;
     })
@@ -161,7 +161,7 @@ async function puzzleUpdateService(puzzle, req) {
             if (error.response){
                 responseCode = error.response.status;
             }
-            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
+            throw new CustomError(CustomErrorEnum.SAVEGAME_PATCHACTIVEGAME_FAILED, responseCode);
         });
 
     return responseBody;
@@ -186,7 +186,7 @@ async function endGameService(puzzle, req) {
         }
     }).then(function (response) {
         if (response.status !== 200){
-            throw new CustomError(CustomErrorEnum.STARTGAME_DELETEOLDACTIVEGAMES_FAILED, response.status);
+            throw new CustomError(CustomErrorEnum.ENDGAME_DELETEACTIVEGAME_FAILED, response.status);
         }
         responseBody = response.data;
     })
@@ -195,7 +195,7 @@ async function endGameService(puzzle, req) {
             if (error.response){
                 responseCode = error.response.status;
             }
-            throw new CustomError(CustomErrorEnum.STARTGAME_DELETEOLDACTIVEGAMES_FAILED, responseCode);
+            throw new CustomError(CustomErrorEnum.ENDGAME_DELETEACTIVEGAME_FAILED, responseCode);
         });
 
     return responseBody;
@@ -218,7 +218,7 @@ async function getDrillService(drillStrategy, req) {
         }
     }).then(function (response) {
         if (response.status !== 200){
-            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
+            throw new CustomError(CustomErrorEnum.GETDRILL_FAILED, response.status);
         }
         responseBody = response.data;
     })
@@ -227,7 +227,7 @@ async function getDrillService(drillStrategy, req) {
             if (error.response){
                 responseCode = error.response.status;
             }
-            throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
+            throw new CustomError(CustomErrorEnum.GETDRILL_FAILED, responseCode);
         });
 
     return responseBody;
@@ -235,5 +235,5 @@ async function getDrillService(drillStrategy, req) {
     //return Puzzle object.
 }
 
-export = { getGame: getGameService, createGameService: createGameService, updateGame: puzzleUpdateService, endGame: endGameService, getDrill: getDrillService };
+export = { getGame: getGameService, createGameService: createGameService, updateGame: saveGameService, endGame: endGameService, getDrill: getDrillService };
 

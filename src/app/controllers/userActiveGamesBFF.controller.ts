@@ -8,7 +8,6 @@
  * @module PuzzleController
  */
 
-import {matchedData} from "express-validator";
 import {CustomError, CustomErrorEnum} from "../models/error.model";
 
 const puzzleService = require('../services/userActiveGamesBFF.service');
@@ -65,7 +64,7 @@ async function updateGame(req, res, next) {
 
     try {
         if (!('puzzle' in req.query)){
-            throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDDIFFICULTY, 400);
+            throw new CustomError(CustomErrorEnum.SAVEGAME_INVALIDPUZZLE, 400);
         }
 
         res.json(await puzzleService.updateGame(req.query['puzzle'], req));
@@ -86,7 +85,7 @@ async function endGame(req, res, next) {
 
     try {
         if (!('puzzle' in req.query)){
-            throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDDIFFICULTY, 400);
+            throw new CustomError(CustomErrorEnum.ENDGAME_INVALIDPUZZLE, 400);
         }
 
         res.json(await puzzleService.endGame(req.query['puzzle'], req));
@@ -108,7 +107,7 @@ async function getDrill(req, res, next) {
     try {
         console.log(req.query);
         if (!('drillStrategies' in req.query)){
-            throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDDIFFICULTY, 400);
+            throw new CustomError(CustomErrorEnum.GETDRILL_INVALIDDRILLSTRATEGIES, 400);
         }
 
         res.json(await puzzleService.getDrill(req.query['drillStrategies'], req));
