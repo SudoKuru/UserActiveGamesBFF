@@ -33,6 +33,10 @@ app.use(cors({
 
 const baseRoute: string = "/api/v1";
 
+app.get(baseRoute, function (req, res) {
+    res.send("Puzzle");
+});
+
 const globalRouter = require('./app/routes/routes');
 app.use(baseRoute, globalRouter);
 
