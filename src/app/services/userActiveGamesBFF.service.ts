@@ -14,6 +14,7 @@ require('dotenv').config();
 const axios = require('axios').default;
 const basePuzzleUrl = process.env.PUZZLE_URL + '/api/v1/puzzles';
 const baseUserActiveGamesUrl = process.env.USER_ACTIVE_GAMES_URL + '/api/v1/user/activeGames';
+const baseUserGameStatisticsUrl = process.env.USER_GAME_STATISTICS_URL + '/api/v1/user/gameStatistics'
 
 
 /**
@@ -179,8 +180,8 @@ async function endGameService(puzzle, req) {
     let token = req.auth.payload;
     let responseBody = null;
 
-    // delete all existing user active games
-    await axios.delete(baseUserActiveGamesUrl + "?userID=" + parseUserID(token.sub.toString()) + "&puzzle=" + puzzle, {
+    // Get user active game to be deleted
+    await axios.get(baseUserActiveGamesUrl + "?userID=" + parseUserID(token.sub.toString()) + "&puzzle=" + puzzle, {
         headers: {
             Authorization: req.headers.authorization
         }
@@ -189,6 +190,77 @@ async function endGameService(puzzle, req) {
             throw new CustomError(CustomErrorEnum.ENDGAME_DELETEACTIVEGAME_FAILED, response.status);
         }
         responseBody = response.data;
+    })
+        .catch(function (error) {
+            let responseCode = 500
+            if (error.response){
+                responseCode = error.response.status;
+            }
+            throw new CustomError(CustomErrorEnum.ENDGAME_DELETEACTIVEGAME_FAILED, responseCode);
+        });
+
+    // update user stats with game to be deleted
+
+    // retrieve user's total game statistics
+    let globalStatisticsResponseCode = 0;
+    await axios.get(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=1111-11", {
+        headers: {
+            Authorization: req.headers.authorization
+        }
+    }).then(function (response) {
+        globalStatisticsResponseCode = response.status;
+        if (response.status == 200){
+            responseBody = response.data;
+        }
+    })
+        .catch(function (error) {
+            if (error.response){
+                globalStatisticsResponseCode = error.response.status;
+            }
+        });
+
+    if (globalStatisticsResponseCode != 200 && globalStatisticsResponseCode != 404){
+        // throw error
+    }
+
+
+
+    // if we get a 404 we want to create and initialize user statistics
+    if (globalStatisticsResponseCode != 404){
+        await axios.post(baseUserGameStatisticsUrl, bodyData, {
+            headers: {
+                Authorization: req.headers.authorization
+            }
+        }).then(function (response) {
+            if (response.status !== 201){
+                throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
+            }
+            responseBody = response.data;
+        })
+            .catch(function (error) {
+                let responseCode = 500
+                if (error.response){
+                    responseCode = error.response.status;
+                }
+                throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
+            });
+    }
+
+
+
+    let score:number = 0;
+
+
+
+    // delete the specified user active game
+    await axios.delete(baseUserActiveGamesUrl + "?userID=" + parseUserID(token.sub.toString()) + "&puzzle=" + puzzle, {
+        headers: {
+            Authorization: req.headers.authorization
+        }
+    }).then(function (response) {
+        if (response.status !== 200){
+            throw new CustomError(CustomErrorEnum.ENDGAME_DELETEACTIVEGAME_FAILED, response.status);
+        }
     })
         .catch(function (error) {
             let responseCode = 500
