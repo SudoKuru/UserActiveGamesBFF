@@ -63,7 +63,7 @@ async function createGameService(closestDifficulty:number, req:any) {
     });
 
     // get puzzle from puzzle database
-    await axios.get(basePuzzleUrl + "?minDifficulty=" + minDifficulty + "&maxDifficulty=" + maxDifficulty + "&count=1", {
+    await axios.get(basePuzzleUrl + "?minDifficulty=" + minDifficulty + "&maxDifficulty=" + maxDifficulty + "&count=1&random=true", {
         headers: {
             Authorization: req.headers.authorization
         }
