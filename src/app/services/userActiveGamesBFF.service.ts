@@ -204,7 +204,7 @@ async function endGameService(puzzle, req) {
         }
     }).then(function (response) {
         if (response.status !== 200){
-            throw new CustomError(CustomErrorEnum.ENDGAME_DELETEACTIVEGAME_FAILED, response.status);
+            throw new CustomError(CustomErrorEnum.ENDGAME_GETACTIVEGAME_FAILED, response.status);
         }
         activeGameResponseBody = response.data;
     })
@@ -213,40 +213,39 @@ async function endGameService(puzzle, req) {
             if (error.response){
                 responseCode = error.response.status;
             }
-            throw new CustomError(CustomErrorEnum.ENDGAME_DELETEACTIVEGAME_FAILED, responseCode);
+            throw new CustomError(CustomErrorEnum.ENDGAME_GETACTIVEGAME_FAILED, responseCode);
         });
 
     // Score is always a value less than 100 but can be negative if the user takes an extremely long time
     // This forumula will need to be adjusted in the future
-    let score:number = ((activeGameResponseBody[0].difficulty / 1000 * 35) + (10 - activeGameResponseBody[0].numHintsUsed) +
-        (30 - activeGameResponseBody[0].numWrongCellsPlayed) + (35 - activeGameResponseBody[0].currentTime));
-
-    console.log(score, 'This is the score!');
+    // Score is rounded to the nearest integer
+    let score:number = Math.round(((activeGameResponseBody[0].difficulty / 1000 * 35) + (10 - activeGameResponseBody[0].numHintsUsed) +
+        (30 - activeGameResponseBody[0].numWrongCellsPlayed) + (35 - activeGameResponseBody[0].currentTime)));
 
     // retrieve user's total game statistics
-    let globalStatisticsResponseCode = 0;
-    await axios.get(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=1111-11", {
+    let totalStatisticsResponseCode = 0;
+    await axios.get(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=1111-11-11", {
         headers: {
             Authorization: req.headers.authorization
         }
     }).then(function (response) {
-        globalStatisticsResponseCode = response.status;
+        totalStatisticsResponseCode = response.status;
         if (response.status == 200){
             totalStatsResponseBody = response.data;
         }
     })
         .catch(function (error) {
             if (error.response){
-                globalStatisticsResponseCode = error.response.status;
+                totalStatisticsResponseCode = error.response.status;
             }
         });
 
-    if (globalStatisticsResponseCode != 200 && globalStatisticsResponseCode != 404){
-        // throw error
+    if (totalStatisticsResponseCode != 200 && totalStatisticsResponseCode != 404){
+        throw new CustomError(CustomErrorEnum.ENDGAME_GETTOTALUSERGAMESTATISTICS_FAILED, totalStatisticsResponseCode);
     }
 
     // if we get a 404 we want to create and initialize user statistics
-    if (globalStatisticsResponseCode == 404){
+    if (totalStatisticsResponseCode == 404){
 
         const bodyData = [{
             "userID": parseUserID(token.sub.toString()),
@@ -266,7 +265,7 @@ async function endGameService(puzzle, req) {
             }
         }).then(function (response) {
             if (response.status !== 201){
-                throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
+                throw new CustomError(CustomErrorEnum.ENDGAME_CREATETOTALUSERGAMESTATISTICS_FAILED, response.status);
             }
         })
             .catch(function (error) {
@@ -274,7 +273,7 @@ async function endGameService(puzzle, req) {
                 if (error.response){
                     responseCode = error.response.status;
                 }
-                throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
+                throw new CustomError(CustomErrorEnum.ENDGAME_CREATETOTALUSERGAMESTATISTICS_FAILED, responseCode);
             });
     } else {
 
@@ -291,13 +290,13 @@ async function endGameService(puzzle, req) {
             "numGamesPlayed": 1 + totalStatsResponseBody[0].numGamesPlayed
         }];
 
-        await axios.patch(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=1111-11", bodyData, {
+        await axios.patch(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=1111-11-11", bodyData, {
             headers: {
                 Authorization: req.headers.authorization
             }
         }).then(function (response) {
             if (response.status !== 200){
-                throw new CustomError(CustomErrorEnum.SAVEGAME_PATCHACTIVEGAME_FAILED, response.status);
+                throw new CustomError(CustomErrorEnum.ENDGAME_UPDATETOTALUSERGAMESTATISTICS_FAILED, response.status);
             }
         })
             .catch(function (error) {
@@ -305,14 +304,16 @@ async function endGameService(puzzle, req) {
                 if (error.response){
                     responseCode = error.response.status;
                 }
-                throw new CustomError(CustomErrorEnum.SAVEGAME_PATCHACTIVEGAME_FAILED, responseCode);
+                throw new CustomError(CustomErrorEnum.ENDGAME_UPDATETOTALUSERGAMESTATISTICS_FAILED, responseCode);
             });
     }
 
 
     // retrieve user's daily game statistics
+    // https://stackoverflow.com/questions/3605214/javascript-add-leading-zeroes-to-date
     let dailyStatisticsResponseCode = 0;
-    let currentDate = "2023-04-08"
+    let today = new Date();
+    let currentDate = today.getFullYear().toString() + "-" + "0" + (today.getMonth()+1).toString().slice(-2) + "-" + "0" + today.getDate().toString().slice(-2);
 
     await axios.get(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=" + currentDate, {
         headers: {
@@ -331,7 +332,7 @@ async function endGameService(puzzle, req) {
         });
 
     if (dailyStatisticsResponseCode != 200 && dailyStatisticsResponseCode != 404){
-        // throw error
+        throw new CustomError(CustomErrorEnum.ENDGAME_GETDAILYUSERGAMESTATISTICS_FAILED, dailyStatisticsResponseCode);
     }
 
     // if we get a 404 we want to create and initialize user statistics
@@ -355,7 +356,7 @@ async function endGameService(puzzle, req) {
             }
         }).then(function (response) {
             if (response.status !== 201){
-                throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
+                throw new CustomError(CustomErrorEnum.ENDGAME_CREATEDAILYUSERGAMESTATISTICS_FAILED, response.status);
             }
         })
             .catch(function (error) {
@@ -363,7 +364,7 @@ async function endGameService(puzzle, req) {
                 if (error.response){
                     responseCode = error.response.status;
                 }
-                throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
+                throw new CustomError(CustomErrorEnum.ENDGAME_CREATEDAILYUSERGAMESTATISTICS_FAILED, responseCode);
             });
     } else {
 
@@ -385,7 +386,7 @@ async function endGameService(puzzle, req) {
             }
         }).then(function (response) {
             if (response.status !== 200){
-                throw new CustomError(CustomErrorEnum.SAVEGAME_PATCHACTIVEGAME_FAILED, response.status);
+                throw new CustomError(CustomErrorEnum.ENDGAME_UPDATEDAILYUSERGAMESTATISTICS_FAILED, response.status);
             }
         })
             .catch(function (error) {
@@ -393,7 +394,7 @@ async function endGameService(puzzle, req) {
                 if (error.response){
                     responseCode = error.response.status;
                 }
-                throw new CustomError(CustomErrorEnum.SAVEGAME_PATCHACTIVEGAME_FAILED, responseCode);
+                throw new CustomError(CustomErrorEnum.ENDGAME_UPDATEDAILYUSERGAMESTATISTICS_FAILED, responseCode);
             });
     }
 
