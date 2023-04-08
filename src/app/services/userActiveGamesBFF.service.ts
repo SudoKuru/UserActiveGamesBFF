@@ -193,7 +193,9 @@ async function saveGameService(puzzle, req) {
 async function endGameService(puzzle, req) {
 
     let token = req.auth.payload;
-    let responseBody = null;
+    let totalStatsResponseBody = null;
+    let dailyStatsResponseBody = null
+    let activeGameResponseBody = null;
 
     // Get user active game to be deleted
     await axios.get(baseUserActiveGamesUrl + "?userID=" + parseUserID(token.sub.toString()) + "&puzzle=" + puzzle, {
@@ -204,7 +206,7 @@ async function endGameService(puzzle, req) {
         if (response.status !== 200){
             throw new CustomError(CustomErrorEnum.ENDGAME_DELETEACTIVEGAME_FAILED, response.status);
         }
-        responseBody = response.data;
+        activeGameResponseBody = response.data;
     })
         .catch(function (error) {
             let responseCode = 500
@@ -214,7 +216,12 @@ async function endGameService(puzzle, req) {
             throw new CustomError(CustomErrorEnum.ENDGAME_DELETEACTIVEGAME_FAILED, responseCode);
         });
 
-    // update user stats with game to be deleted
+    // Score is always a value less than 100 but can be negative if the user takes an extremely long time
+    // This forumula will need to be adjusted in the future
+    let score:number = ((activeGameResponseBody[0].difficulty / 1000 * 35) + (10 - activeGameResponseBody[0].numHintsUsed) +
+        (30 - activeGameResponseBody[0].numWrongCellsPlayed) + (35 - activeGameResponseBody[0].currentTime));
+
+    console.log(score, 'This is the score!');
 
     // retrieve user's total game statistics
     let globalStatisticsResponseCode = 0;
@@ -225,7 +232,7 @@ async function endGameService(puzzle, req) {
     }).then(function (response) {
         globalStatisticsResponseCode = response.status;
         if (response.status == 200){
-            responseBody = response.data;
+            totalStatsResponseBody = response.data;
         }
     })
         .catch(function (error) {
@@ -238,10 +245,21 @@ async function endGameService(puzzle, req) {
         // throw error
     }
 
-
-
     // if we get a 404 we want to create and initialize user statistics
-    if (globalStatisticsResponseCode != 404){
+    if (globalStatisticsResponseCode == 404){
+
+        const bodyData = [{
+            "userID": parseUserID(token.sub.toString()),
+            "dateRange": "1111-11-11",
+            "score": score,
+            "averageSolveTime": activeGameResponseBody[0].currentTime,
+            "fastestSolveTime": activeGameResponseBody[0].currentTime,
+            "totalSolveTime": activeGameResponseBody[0].currentTime,
+            "numHintsUsed": activeGameResponseBody[0].numHintsUsed,
+            "numWrongCellsPlayed": activeGameResponseBody[0].numWrongCellsPlayed,
+            "numGamesPlayed": 1
+        }];
+
         await axios.post(baseUserGameStatisticsUrl, bodyData, {
             headers: {
                 Authorization: req.headers.authorization
@@ -250,7 +268,6 @@ async function endGameService(puzzle, req) {
             if (response.status !== 201){
                 throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
             }
-            responseBody = response.data;
         })
             .catch(function (error) {
                 let responseCode = 500
@@ -259,12 +276,126 @@ async function endGameService(puzzle, req) {
                 }
                 throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
             });
+    } else {
+
+        const bodyData = [{
+            "userID": parseUserID(token.sub.toString()),
+            "dateRange": "1111-11-11",
+            "score": score + totalStatsResponseBody[0].score,
+            "averageSolveTime": (activeGameResponseBody[0].currentTime + totalStatsResponseBody[0].totalSolveTime) / (1 + totalStatsResponseBody[0].numGamesPlayed),
+            "fastestSolveTime": (activeGameResponseBody[0].currentTime < totalStatsResponseBody[0].fastestSolveTime)
+                ? activeGameResponseBody[0].currentTime : totalStatsResponseBody[0].fastestSolveTime,
+            "totalSolveTime": activeGameResponseBody[0].currentTime + totalStatsResponseBody[0].totalSolveTime,
+            "numHintsUsed": activeGameResponseBody[0].numHintsUsed + totalStatsResponseBody[0].numHintsUsed,
+            "numWrongCellsPlayed": activeGameResponseBody[0].numWrongCellsPlayed + totalStatsResponseBody[0].numWrongCellsPlayed,
+            "numGamesPlayed": 1 + totalStatsResponseBody[0].numGamesPlayed
+        }];
+
+        await axios.patch(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=1111-11", bodyData, {
+            headers: {
+                Authorization: req.headers.authorization
+            }
+        }).then(function (response) {
+            if (response.status !== 200){
+                throw new CustomError(CustomErrorEnum.SAVEGAME_PATCHACTIVEGAME_FAILED, response.status);
+            }
+        })
+            .catch(function (error) {
+                let responseCode = 500
+                if (error.response){
+                    responseCode = error.response.status;
+                }
+                throw new CustomError(CustomErrorEnum.SAVEGAME_PATCHACTIVEGAME_FAILED, responseCode);
+            });
     }
 
 
+    // retrieve user's daily game statistics
+    let dailyStatisticsResponseCode = 0;
+    let currentDate = "2023-04-08"
 
-    let score:number = 0;
+    await axios.get(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=" + currentDate, {
+        headers: {
+            Authorization: req.headers.authorization
+        }
+    }).then(function (response) {
+        dailyStatisticsResponseCode = response.status;
+        if (response.status == 200){
+            dailyStatsResponseBody = response.data;
+        }
+    })
+        .catch(function (error) {
+            if (error.response){
+                dailyStatisticsResponseCode = error.response.status;
+            }
+        });
 
+    if (dailyStatisticsResponseCode != 200 && dailyStatisticsResponseCode != 404){
+        // throw error
+    }
+
+    // if we get a 404 we want to create and initialize user statistics
+    if (dailyStatisticsResponseCode == 404){
+
+        const bodyData = [{
+            "userID": parseUserID(token.sub.toString()),
+            "dateRange": currentDate,
+            "score": score,
+            "averageSolveTime": activeGameResponseBody[0].currentTime,
+            "fastestSolveTime": activeGameResponseBody[0].currentTime,
+            "totalSolveTime": activeGameResponseBody[0].currentTime,
+            "numHintsUsed": activeGameResponseBody[0].numHintsUsed,
+            "numWrongCellsPlayed": activeGameResponseBody[0].numWrongCellsPlayed,
+            "numGamesPlayed": 1
+        }];
+
+        await axios.post(baseUserGameStatisticsUrl, bodyData, {
+            headers: {
+                Authorization: req.headers.authorization
+            }
+        }).then(function (response) {
+            if (response.status !== 201){
+                throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, response.status);
+            }
+        })
+            .catch(function (error) {
+                let responseCode = 500
+                if (error.response){
+                    responseCode = error.response.status;
+                }
+                throw new CustomError(CustomErrorEnum.STARTGAME_CREATEACTIVEGAME_FAILED, responseCode);
+            });
+    } else {
+
+        const bodyData = [{
+            "userID": parseUserID(token.sub.toString()),
+            "dateRange": currentDate,
+            "score": score + dailyStatsResponseBody[0].score,
+            "averageSolveTime": (activeGameResponseBody[0].currentTime + dailyStatsResponseBody[0].totalSolveTime) / (1 + dailyStatsResponseBody[0].numGamesPlayed),
+            "fastestSolveTime": (activeGameResponseBody[0].currentTime < dailyStatsResponseBody[0].fastestSolveTime) ? activeGameResponseBody[0].currentTime : dailyStatsResponseBody[0].fastestSolveTime,
+            "totalSolveTime": activeGameResponseBody[0].currentTime + dailyStatsResponseBody[0].totalSolveTime,
+            "numHintsUsed": activeGameResponseBody[0].numHintsUsed + dailyStatsResponseBody[0].numHintsUsed,
+            "numWrongCellsPlayed": activeGameResponseBody[0].numWrongCellsPlayed + dailyStatsResponseBody[0].numWrongCellsPlayed,
+            "numGamesPlayed": 1 + dailyStatsResponseBody[0].numGamesPlayed
+        }];
+
+        await axios.patch(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=" + currentDate, bodyData, {
+            headers: {
+                Authorization: req.headers.authorization
+            }
+        }).then(function (response) {
+            if (response.status !== 200){
+                throw new CustomError(CustomErrorEnum.SAVEGAME_PATCHACTIVEGAME_FAILED, response.status);
+            }
+        })
+            .catch(function (error) {
+                let responseCode = 500
+                if (error.response){
+                    responseCode = error.response.status;
+                }
+                throw new CustomError(CustomErrorEnum.SAVEGAME_PATCHACTIVEGAME_FAILED, responseCode);
+            });
+    }
 
 
     // delete the specified user active game
@@ -285,7 +416,12 @@ async function endGameService(puzzle, req) {
             throw new CustomError(CustomErrorEnum.ENDGAME_DELETEACTIVEGAME_FAILED, responseCode);
         });
 
-    return responseBody;
+    return {
+        "score": score,
+        "solveTime": activeGameResponseBody[0].currentTime,
+        "numHintsUsed": activeGameResponseBody[0].numHintsUsed,
+        "numWrongCellsPlayed": activeGameResponseBody[0].numWrongCellsPlayed,
+    };
 }
 
 /**
