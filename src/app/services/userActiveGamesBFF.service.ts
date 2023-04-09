@@ -223,7 +223,7 @@ async function endGameService(puzzle, req) {
     let difficultyScore:number = (activeGameResponseBody[0].difficulty / 1000 * 30);
     let hintAndIncorrectCellsScore:number = ((activeGameResponseBody[0].numWrongCellsPlayed + activeGameResponseBody[0].numHintsUsed) > 40) ? 0 :
         (40 - activeGameResponseBody[0].numWrongCellsPlayed - activeGameResponseBody[0].numHintsUsed)
-    let timeScore:number = (30 - (activeGameResponseBody[0].currentTime/60));
+    let timeScore:number = ((activeGameResponseBody[0].currentTime/60) > 30) ? 0 : (30 - (activeGameResponseBody[0].currentTime/60));
 
     let score:number = Math.round(difficultyScore + hintAndIncorrectCellsScore + timeScore);
 
