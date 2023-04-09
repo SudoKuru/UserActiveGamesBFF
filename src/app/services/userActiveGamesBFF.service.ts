@@ -219,8 +219,13 @@ async function endGameService(puzzle, req) {
     // Score is always a value less than 100 but can be negative if the user takes an extremely long time
     // This forumula will need to be adjusted in the future
     // Score is rounded to the nearest integer
-    let score:number = Math.round(((activeGameResponseBody[0].difficulty / 1000 * 35) + (10 - activeGameResponseBody[0].numHintsUsed) +
-        (30 - activeGameResponseBody[0].numWrongCellsPlayed) + (35 - activeGameResponseBody[0].currentTime)));
+
+    let difficultyScore:number = (activeGameResponseBody[0].difficulty / 1000 * 35);
+    let hintsUsedScore:number = (activeGameResponseBody[0].numHintsUsed > 30) ? 0 : activeGameResponseBody[0].numHintsUsed;
+    let numWrongCellsPlayedScore:number = (activeGameResponseBody[0].numWrongCellsPlayed > 10) ? 0 : activeGameResponseBody[0].numWrongCellsPlayed;
+    let timeScore:number = (35 - (activeGameResponseBody[0].currentTime/60));
+
+    let score:number = Math.round(difficultyScore + hintsUsedScore + numWrongCellsPlayedScore + timeScore);
 
     // retrieve user's total game statistics
     let totalStatisticsResponseCode = 0;
@@ -418,6 +423,7 @@ async function endGameService(puzzle, req) {
         });
 
     return {
+        "difficulty": activeGameResponseBody[0].difficulty,
         "score": score,
         "solveTime": activeGameResponseBody[0].currentTime,
         "numHintsUsed": activeGameResponseBody[0].numHintsUsed,
