@@ -318,7 +318,7 @@ async function endGameService(puzzle, req) {
     // https://stackoverflow.com/questions/3605214/javascript-add-leading-zeroes-to-date
     let dailyStatisticsResponseCode = 0;
     let today = new Date();
-    let currentDate = today.getFullYear().toString() + "-" + "0" + (today.getMonth()+1).toString().slice(-2) + "-" + "0" + today.getDate().toString().slice(-2);
+    let currentDate = today.getFullYear().toString() + "-" + ("0" + (today.getMonth()+1).toString()).slice(-2) + "-" + ("0" + today.getDate().toString()).slice(-2);
 
     await axios.get(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=" + currentDate, {
         headers: {
