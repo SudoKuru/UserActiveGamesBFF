@@ -343,7 +343,7 @@ async function endGameService(puzzle, req) {
     // if we get a 404 we want to create and initialize user statistics
     if (dailyStatisticsResponseCode == 404){
 
-        const bodyData = [{
+        const bodyData = {
             "userID": parseUserID(token.sub.toString()),
             "dateRange": currentDate,
             "score": score,
@@ -353,7 +353,7 @@ async function endGameService(puzzle, req) {
             "numHintsUsed": activeGameResponseBody[0].numHintsUsed,
             "numWrongCellsPlayed": activeGameResponseBody[0].numWrongCellsPlayed,
             "numGamesPlayed": 1
-        }];
+        };
 
         await axios.post(baseUserGameStatisticsUrl, bodyData, {
             headers: {
@@ -373,7 +373,7 @@ async function endGameService(puzzle, req) {
             });
     } else {
 
-        const bodyData = [{
+        const bodyData = {
             "userID": parseUserID(token.sub.toString()),
             "dateRange": currentDate,
             "score": score + dailyStatsResponseBody[0].score,
@@ -383,7 +383,7 @@ async function endGameService(puzzle, req) {
             "numHintsUsed": activeGameResponseBody[0].numHintsUsed + dailyStatsResponseBody[0].numHintsUsed,
             "numWrongCellsPlayed": activeGameResponseBody[0].numWrongCellsPlayed + dailyStatsResponseBody[0].numWrongCellsPlayed,
             "numGamesPlayed": 1 + dailyStatsResponseBody[0].numGamesPlayed
-        }];
+        };
 
         await axios.patch(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=" + currentDate, bodyData, {
             headers: {
