@@ -287,8 +287,8 @@ async function endGameService(puzzle, req) {
             "dateRange": "1111-11-11",
             "score": score + totalStatsResponseBody[0].score,
             "averageSolveTime": (activeGameResponseBody[0].currentTime + totalStatsResponseBody[0].totalSolveTime) / (1 + totalStatsResponseBody[0].numGamesPlayed),
-            "fastestSolveTime": (activeGameResponseBody[0].currentTime < totalStatsResponseBody[0].fastestSolveTime)
-                ? activeGameResponseBody[0].currentTime : totalStatsResponseBody[0].fastestSolveTime,
+            "fastestSolveTime": (activeGameResponseBody[0].currentTime > totalStatsResponseBody[0].fastestSolveTime && totalStatsResponseBody[0].fastestSolveTime != 0)
+                ? totalStatsResponseBody[0].fastestSolveTime : activeGameResponseBody[0].currentTime,
             "totalSolveTime": activeGameResponseBody[0].currentTime + totalStatsResponseBody[0].totalSolveTime,
             "numHintsUsed": activeGameResponseBody[0].numHintsUsed + totalStatsResponseBody[0].numHintsUsed,
             "numWrongCellsPlayed": activeGameResponseBody[0].numWrongCellsPlayed + totalStatsResponseBody[0].numWrongCellsPlayed,
@@ -378,7 +378,8 @@ async function endGameService(puzzle, req) {
             "dateRange": currentDate,
             "score": score + dailyStatsResponseBody[0].score,
             "averageSolveTime": (activeGameResponseBody[0].currentTime + dailyStatsResponseBody[0].totalSolveTime) / (1 + dailyStatsResponseBody[0].numGamesPlayed),
-            "fastestSolveTime": (activeGameResponseBody[0].currentTime < dailyStatsResponseBody[0].fastestSolveTime) ? activeGameResponseBody[0].currentTime : dailyStatsResponseBody[0].fastestSolveTime,
+            "fastestSolveTime": (activeGameResponseBody[0].currentTime > dailyStatsResponseBody[0].fastestSolveTime && dailyStatsResponseBody[0].fastestSolveTime != 0)
+                ? dailyStatsResponseBody[0].fastestSolveTime : activeGameResponseBody[0].currentTime,
             "totalSolveTime": activeGameResponseBody[0].currentTime + dailyStatsResponseBody[0].totalSolveTime,
             "numHintsUsed": activeGameResponseBody[0].numHintsUsed + dailyStatsResponseBody[0].numHintsUsed,
             "numWrongCellsPlayed": activeGameResponseBody[0].numWrongCellsPlayed + dailyStatsResponseBody[0].numWrongCellsPlayed,
