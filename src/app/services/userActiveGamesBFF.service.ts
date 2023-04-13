@@ -282,7 +282,7 @@ async function endGameService(puzzle, req) {
             });
     } else {
 
-        const bodyData = [{
+        const bodyData = {
             "userID": parseUserID(token.sub.toString()),
             "dateRange": "1111-11-11",
             "score": score + totalStatsResponseBody[0].score,
@@ -293,7 +293,7 @@ async function endGameService(puzzle, req) {
             "numHintsUsed": activeGameResponseBody[0].numHintsUsed + totalStatsResponseBody[0].numHintsUsed,
             "numWrongCellsPlayed": activeGameResponseBody[0].numWrongCellsPlayed + totalStatsResponseBody[0].numWrongCellsPlayed,
             "numGamesPlayed": 1 + totalStatsResponseBody[0].numGamesPlayed
-        }];
+        };
 
         await axios.patch(baseUserGameStatisticsUrl + "?userID=" + parseUserID(token.sub.toString()) + "&dateRange=1111-11-11", bodyData, {
             headers: {
@@ -354,8 +354,6 @@ async function endGameService(puzzle, req) {
             "numWrongCellsPlayed": activeGameResponseBody[0].numWrongCellsPlayed,
             "numGamesPlayed": 1
         }];
-
-        console.log(bodyData);
 
         await axios.post(baseUserGameStatisticsUrl, bodyData, {
             headers: {
