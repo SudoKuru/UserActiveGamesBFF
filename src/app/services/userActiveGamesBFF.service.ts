@@ -16,15 +16,19 @@ const basePuzzleUrl = process.env.PUZZLE_URL + '/api/v1/puzzles';
 const baseUserActiveGamesUrl = process.env.USER_ACTIVE_GAMES_URL + '/api/v1/user/activeGames';
 const baseUserGameStatisticsUrl = process.env.USER_GAME_STATISTICS_URL + '/api/v1/user/gameStatistics'
 
+const allStrategies = ["NAKED_SINGLE", "HIDDEN_SINGLE", "NAKED_PAIR", "NAKED_TRIPLET", "NAKED_QUADRUPLET", "NAKED_QUINTUPLET",
+    "NAKED_SEXTUPLET", "NAKED_SEPTUPLET", "NAKED_OCTUPLET", "HIDDEN_PAIR", "HIDDEN_TRIPLET", "HIDDEN_QUADRUPLET",
+    "HIDDEN_QUINTUPLET", "HIDDEN_SEXTUPLET", "HIDDEN_SEPTUPLET", "HIDDEN_OCTUPLET", "POINTING_PAIR", "POINTING_TRIPLET",
+    "BOX_LINE_REDUCTION", "X_WING", "SWORDFISH", "SINGLES_CHAINING"];
+
 
 /**
  * This function takes in the input query and throws and error if no puzzles
  * are found to match the query
  * This function calls a helper function to create the inputQuery for the dataBase function
- * @param closestDifficulty is an integer storing requested closestDifficulty
  * @param req
  */
-async function createGameService(closestDifficulty:number, req:any) {
+async function createGameService(req:any,) {
 
     let token = req.auth.payload;
     let puzzleGetResponse = null;
@@ -32,6 +36,27 @@ async function createGameService(closestDifficulty:number, req:any) {
 
     let minDifficulty;
     let maxDifficulty;
+
+    let closestDifficulty: number = Number(req.query['closestDifficulty']);
+    let learnedStrategies: string[] = req.query['learnedStrategies'];
+
+    if (learnedStrategies.includes("NAKED_SET")){
+        let index = learnedStrategies.indexOf("NAKED_SET");
+        learnedStrategies.splice(index, 1);
+        learnedStrategies.push("NAKED_PAIR", "NAKED_TRIPLET", "NAKED_QUADRUPLET");
+    }
+
+    if (learnedStrategies.includes("HIDDEN_SET")){
+        let index = learnedStrategies.indexOf("HIDDEN_SET");
+        learnedStrategies.splice(index, 1);
+        learnedStrategies.push("HIDDEN_PAIR", "HIDDEN_TRIPLET", "HIDDEN_QUADRUPLET");
+    }
+
+    console.log(learnedStrategies);
+
+    let strategiesToExclude = arrayDifference(learnedStrategies, allStrategies);
+
+    console.log(strategiesToExclude);
 
     if (closestDifficulty < 950){
         maxDifficulty = closestDifficulty + 50;
@@ -64,7 +89,7 @@ async function createGameService(closestDifficulty:number, req:any) {
     });
 
     // get puzzle from puzzle database
-    await axios.get(basePuzzleUrl + "?minDifficulty=" + minDifficulty + "&maxDifficulty=" + maxDifficulty + "&count=1&random=true", {
+    await axios.get(basePuzzleUrl + "?minDifficulty=" + minDifficulty + "&maxDifficulty=" + maxDifficulty + "&excludeStrategies=" + strategiesToExclude + "&count=1&random=true", {
         headers: {
             Authorization: req.headers.authorization
         }
@@ -463,12 +488,18 @@ async function getDrillService(drillStrategy, req) {
         });
 
     return responseBody;
-
-    //return Puzzle object.
 }
 
 function parseUserID(userID){
     return userID.replace(new RegExp("[|]", "g"), "-")
+}
+
+/**
+ * Returns all elements from avaliableLessons that are not in learnedLessons
+ */
+// https://stackoverflow.com/questions/1187518/how-to-get-the-difference-between-two-arrays-in-javascript
+const arrayDifference = (learnedLessons: string[], allStrategies: string[]) => {
+    return allStrategies.filter(x => !learnedLessons.includes(x));
 }
 
 export = { getGame: getGameService, createGameService: createGameService, updateGame: saveGameService, endGame: endGameService, getDrill: getDrillService };
