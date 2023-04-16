@@ -52,11 +52,7 @@ async function createGameService(req:any,) {
         learnedStrategies.push("HIDDEN_PAIR", "HIDDEN_TRIPLET", "HIDDEN_QUADRUPLET");
     }
 
-    console.log(learnedStrategies);
-
     let strategiesToExclude = arrayDifference(learnedStrategies, allStrategies);
-
-    console.log(strategiesToExclude);
 
     if (closestDifficulty < 950){
         maxDifficulty = closestDifficulty + 50;
@@ -68,6 +64,12 @@ async function createGameService(req:any,) {
         minDifficulty = closestDifficulty - 50;
     } else {
         minDifficulty = 1;
+    }
+
+    // we got to convert array into url format
+    let concatUrlString = ""
+    for (let i = 0; i < strategiesToExclude.length; i++){
+        concatUrlString = concatUrlString + "&excludeStrategies[]=" + strategiesToExclude[i];
     }
 
     // delete all existing user active games
@@ -89,7 +91,7 @@ async function createGameService(req:any,) {
     });
 
     // get puzzle from puzzle database
-    await axios.get(basePuzzleUrl + "?minDifficulty=" + minDifficulty + "&maxDifficulty=" + maxDifficulty + "&excludeStrategies=" + strategiesToExclude + "&count=1&random=true", {
+    await axios.get(basePuzzleUrl + "?minDifficulty=" + minDifficulty + "&maxDifficulty=" + maxDifficulty + concatUrlString + "&count=1&random=true", {
         headers: {
             Authorization: req.headers.authorization
         }
