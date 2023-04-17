@@ -51,6 +51,11 @@ async function createGameService(req:any,) {
         learnedStrategies.splice(index, 1);
         learnedStrategies.push("HIDDEN_PAIR", "HIDDEN_TRIPLET", "HIDDEN_QUADRUPLET");
     }
+    if (learnedStrategies.includes("POINTING_SET")){
+        let index = learnedStrategies.indexOf("POINTING_SET");
+        learnedStrategies.splice(index, 1);
+        learnedStrategies.push("POINTING_PAIR", "POINTING_TRIPLET");
+    }
 
     let strategiesToExclude = arrayDifference(learnedStrategies, allStrategies);
 
