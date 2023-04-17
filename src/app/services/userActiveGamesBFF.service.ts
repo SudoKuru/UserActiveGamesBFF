@@ -40,23 +40,6 @@ async function createGameService(req:any,) {
     let closestDifficulty: number = Number(req.query['closestDifficulty']);
     let learnedStrategies: string[] = req.query['learnedStrategies'];
 
-    if (learnedStrategies.includes("NAKED_SET")){
-        let index = learnedStrategies.indexOf("NAKED_SET");
-        learnedStrategies.splice(index, 1);
-        learnedStrategies.push("NAKED_PAIR", "NAKED_TRIPLET", "NAKED_QUADRUPLET");
-    }
-
-    if (learnedStrategies.includes("HIDDEN_SET")){
-        let index = learnedStrategies.indexOf("HIDDEN_SET");
-        learnedStrategies.splice(index, 1);
-        learnedStrategies.push("HIDDEN_PAIR", "HIDDEN_TRIPLET", "HIDDEN_QUADRUPLET");
-    }
-    if (learnedStrategies.includes("POINTING_SET")){
-        let index = learnedStrategies.indexOf("POINTING_SET");
-        learnedStrategies.splice(index, 1);
-        learnedStrategies.push("POINTING_PAIR", "POINTING_TRIPLET");
-    }
-
     let strategiesToExclude = arrayDifference(learnedStrategies, allStrategies);
 
     if (closestDifficulty < 950){
