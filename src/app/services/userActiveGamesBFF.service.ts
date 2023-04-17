@@ -301,7 +301,7 @@ async function endGameService(puzzle, req) {
             "userID": parseUserID(token.sub.toString()),
             "dateRange": "1111-11-11",
             "score": score + totalStatsResponseBody[0].score,
-            "averageSolveTime": (activeGameResponseBody[0].currentTime + totalStatsResponseBody[0].totalSolveTime) / (1 + totalStatsResponseBody[0].numGamesPlayed),
+            "averageSolveTime": Math.round((activeGameResponseBody[0].currentTime + totalStatsResponseBody[0].totalSolveTime) / (1 + totalStatsResponseBody[0].numGamesPlayed)),
             "fastestSolveTime": (activeGameResponseBody[0].currentTime > totalStatsResponseBody[0].fastestSolveTime && totalStatsResponseBody[0].fastestSolveTime != 0)
                 ? totalStatsResponseBody[0].fastestSolveTime : activeGameResponseBody[0].currentTime,
             "totalSolveTime": activeGameResponseBody[0].currentTime + totalStatsResponseBody[0].totalSolveTime,
@@ -392,7 +392,7 @@ async function endGameService(puzzle, req) {
             "userID": parseUserID(token.sub.toString()),
             "dateRange": currentDate,
             "score": score + dailyStatsResponseBody[0].score,
-            "averageSolveTime": (activeGameResponseBody[0].currentTime + dailyStatsResponseBody[0].totalSolveTime) / (1 + dailyStatsResponseBody[0].numGamesPlayed),
+            "averageSolveTime": Math.round((activeGameResponseBody[0].currentTime + dailyStatsResponseBody[0].totalSolveTime) / (1 + dailyStatsResponseBody[0].numGamesPlayed)),
             "fastestSolveTime": (activeGameResponseBody[0].currentTime > dailyStatsResponseBody[0].fastestSolveTime && dailyStatsResponseBody[0].fastestSolveTime != 0)
                 ? dailyStatsResponseBody[0].fastestSolveTime : activeGameResponseBody[0].currentTime,
             "totalSolveTime": activeGameResponseBody[0].currentTime + dailyStatsResponseBody[0].totalSolveTime,
