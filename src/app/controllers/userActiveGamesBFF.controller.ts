@@ -28,8 +28,11 @@ async function createGame(req, res, next) {
         if (!('closestDifficulty' in req.query)){
             throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDDIFFICULTY, 400);
         }
+        if (!('learnedStrategies' in req.query)){
+            throw new CustomError(CustomErrorEnum.STARTGAME_INVALIDLEARNEDSTRATEGIES, 400);
+        }
 
-        res.json(await puzzleService.createGameService(Number(req.query['closestDifficulty']), req));
+        res.json(await puzzleService.createGameService(req));
     } catch(err) {
         next(err);
     }

@@ -16,6 +16,7 @@ export enum CustomErrorEnum {
     INVALID_TOKEN = "Invalid Token",
     INVALID_PATH = "The path provided is invalid",
     STARTGAME_INVALIDDIFFICULTY = "Invalid difficulty provided",
+    STARTGAME_INVALIDLEARNEDSTRATEGIES = "Invalid learned strategies provided",
     STARTGAME_DELETEOLDACTIVEGAMES_FAILED = "The deletion of old active games failed",
     STARTGAME_GETPUZZLE_FAILED = "The retrieval of a new puzzle failed",
     STARTGAME_CREATEACTIVEGAME_FAILED = "The creation of a new active game failed",
